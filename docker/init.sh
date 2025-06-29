@@ -24,7 +24,7 @@ bench set-redis-socketio-host redis://redis:6379
 sed -i '/redis/d' ./Procfile
 sed -i '/watch/d' ./Procfile
 
-bench get-app lms
+bench get-app lms https://github.com/Surya27-28/lms.git
 
 bench new-site lms.localhost \
 --force \
@@ -36,5 +36,9 @@ bench --site lms.localhost install-app lms
 bench --site lms.localhost set-config developer_mode 1
 bench --site lms.localhost clear-cache
 bench use lms.localhost
+
+# cd frappe-bench
+
+bench --site lms.local migrate
 
 bench start
