@@ -253,3 +253,9 @@ add_to_apps_screen = [
 		"has_permission": "lms.lms.api.check_app_permission",
 	}
 ]
+
+doc_events = {
+    "User": {
+        "after_insert": "lms.api.assign_user_role"
+    }
+}

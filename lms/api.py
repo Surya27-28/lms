@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 
 @frappe.whitelist()
 def create_Virtual_world():
@@ -77,3 +78,14 @@ def update_machine(status):
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Error updating machine")
         return {"error": str(e)}
+from frappe import _
+
+
+@frappe.whitelist()
+def assign_user_role(email, role):
+    user = frappe.get_doc("User", email)
+    if not any(r.role == role for r in user.roles):
+        user.append("roles", {"role": role})
+        user.save()
+        frappe.db.commit()
+    return _("Role assigned successfully.")
