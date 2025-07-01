@@ -1,0 +1,98 @@
+{% extends "templates/web.html" %}
+
+{% block title %}Sign Up | Roslab{% endblock %}
+
+{% block page_content %}
+<div class="signup-container" style="max-width: 500px; margin: auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 2px 20px rgba(0,0,0,0.1);">
+  <h2 style="text-align: center; color: #444;">Create Account</h2>
+  <form id="signupForm">
+    <div class="form-group">
+      <label for="full_name">Full Name</label>
+      <input id="full_name" type="text" class="form-control" required />
+    </div>
+    <div class="form-group">
+      <label for="email">Email or Username</label>
+      <input id="email" type="text" class="form-control" required />
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input id="password" type="password" class="form-control" required />
+    </div>
+    <div class="form-group">
+      <label for="role">I am a:</label>
+      <select id="role" class="form-control" required>
+        <option value="">-- Select --</option>
+        <option value="Student">Student</option>
+        <option value="Teacher">Teacher</option>
+        <option value="ROSI">ROSI</option>
+        <option value="ANYA">ANYA</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+  </form>
+  <div style="text-align: center; margin-top: 1rem;">
+    <a href="landing/signin">Already have an account? Login</a>
+  </div>
+</div>
+
+<script>
+  document.getElementById('signupForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const fullName = document.getElementById('full_name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const role = document.getElementById('role').value;
+
+    if (!fullName || !email || !password || !role) {
+      frappe.msgprint("Please fill in all fields.");
+      return;
+    }
+
+    try {
+      // Step 1: Sign up
+      const signup = await fetch("/api/method/frappe.auth.sign_up", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Frappe-CSRF-Token": frappe.csrf_token
+        },
+        body: JSON.stringify({
+          email: email,
+          full_name: fullName,
+          redirect_to: "/"
+        })
+      });
+
+      const signupRes = await signup.json();
+      if (!signup.ok || signupRes.exc) throw new Error(signupRes.message || "Signup failed");
+
+      // Step 2: Log in
+      const login = await fetch("/api/method/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Frappe-CSRF-Token": frappe.csrf_token
+        },
+        body: JSON.stringify({
+          usr: email,
+          pwd: password
+        })
+      });
+
+      const loginRes = await login.json();
+      if (!login.ok || loginRes.exc) throw new Error(loginRes.message || "Login failed");
+
+      // Step 3: Redirect by role
+      const dashboards = {
+        Student: "/student-dashboard",
+        Teacher: "/teacher-dashboard",
+        ROSI: "/rosi-dashboard",
+        ANYA: "/anya-dashboard"
+      };
+      window.location.href = dashboards[role] || "/";
+    } catch (err) {
+      frappe.msgprint("⚠️ " + err.message);
+    }
+  });
+</script>
+{% endblock %}

@@ -460,6 +460,12 @@ export function getSidebarLinks() {
 			to: 'Statistics',
 			activeFor: ['Statistics'],
 		},
+		{
+			label: 'DigitalTwins',
+			icon: 'TrendingUp',
+			to: 'digitaltwins',
+			activeFor: ['digitaltwins'],
+		},
 	]
 }
 

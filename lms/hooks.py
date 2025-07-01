@@ -54,7 +54,7 @@ web_include_js = []
 # ----------
 
 # automatically create page for each record of this doctype
-# website_generators = ["Web Page"]
+website_generators = ["Web Page"]
 
 # Installation
 # ------------
@@ -125,7 +125,7 @@ scheduler_events = {
 	],
 }
 
-fixtures = ["Custom Field", "Function", "Industry", "LMS Category","Web Page"]
+fixtures = ["Custom Field", "Function", "Industry", "LMS Category","Web Page", "Website Settings"]
 
 # fixtures = ["Web Page", "Course", "Lesson", "Chapter"]
 # Testing
@@ -254,8 +254,19 @@ add_to_apps_screen = [
 	}
 ]
 
+# Allow guest access to signup
+allow_guest = ["frappe.core.doctype.user.user.sign_up"]
+
+# Auto-assign role after user creation
 doc_events = {
     "User": {
         "after_insert": "lms.api.assign_user_role"
     }
+}
+
+override_whitelisted_methods = {
+    "frappe.www.login.login": "lms.www.login.custom_login"
+}
+override_whitelisted_methods = {
+    "frappe.www.login.login": "lms.www.login.get_context"
 }

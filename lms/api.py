@@ -87,5 +87,3 @@ def assign_user_role(email, role):
     if not any(r.role == role for r in user.roles):
         user.append("roles", {"role": role})
         user.save()
-        frappe.db.commit()
-    return _("Role assigned successfully.")
