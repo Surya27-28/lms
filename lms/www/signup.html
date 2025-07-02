@@ -1,98 +1,174 @@
-{% extends "templates/web.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Roslab - Sign Up</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    /* Your custom CSS (Roslab style) */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
 
-{% block title %}Sign Up | Roslab{% endblock %}
+    .signup-container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      padding: 3rem;
+      width: 100%;
+      max-width: 500px;
+      animation: slideUp 0.8s ease-out;
+    }
 
-{% block page_content %}
-<div class="signup-container" style="max-width: 500px; margin: auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 2px 20px rgba(0,0,0,0.1);">
-  <h2 style="text-align: center; color: #444;">Create Account</h2>
-  <form id="signupForm">
-    <div class="form-group">
-      <label for="full_name">Full Name</label>
-      <input id="full_name" type="text" class="form-control" required />
+    .logo {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .logo i {
+      font-size: 3rem;
+      color: #667eea;
+      margin-bottom: 1rem;
+    }
+
+    .logo h1 {
+      color: #333;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e1e5e9;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.3s;
+      margin-bottom: 1rem;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <div class="logo">
+      <i class="fas fa-user-plus"></i>
+      <h1>Create Account</h1>
     </div>
-    <div class="form-group">
-      <label for="email">Email or Username</label>
-      <input id="email" type="text" class="form-control" required />
-    </div>
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input id="password" type="password" class="form-control" required />
-    </div>
-    <div class="form-group">
-      <label for="role">I am a:</label>
-      <select id="role" class="form-control" required>
-        <option value="">-- Select --</option>
-        <option value="Student">Student</option>
-        <option value="Teacher">Teacher</option>
-        <option value="ROSI">ROSI</option>
-        <option value="ANYA">ANYA</option>
-      </select>
-    </div>
-    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
-  </form>
-  <div style="text-align: center; margin-top: 1rem;">
-    <a href="landing/signin">Already have an account? Login</a>
+
+    <form id="new-sign-up">
+      <div class="form-group">
+        <label for="full_name">Full Name</label>
+        <input id="full_name" type="text" required>
+      </div>
+
+      <div class="form-group">
+        <label for="signup_email">Email</label>
+        <input id="signup_email" type="email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input id="username" type="text" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" required>
+      </div>
+
+      <div class="form-group">
+        <label for="user_role">Select Role</label>
+        <select id="user_role" required>
+          <option value="">-- Select Role --</option>
+          <option value="Student">Student</option>
+          <option value="Teacher">Teacher</option>
+        </select>
+      </div>
+
+      <button type="submit" id="submit" class="btn-primary">Submit</button>
+    </form>
   </div>
-</div>
 
-<script>
-  document.getElementById('signupForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const fullName = document.getElementById('full_name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const role = document.getElementById('role').value;
+  <script>
+    frappe.ready(() => {
+      document.getElementById("submit").addEventListener("click", function (e) {
+        e.preventDefault();
+        var data = {
+          full_name: document.getElementById("full_name").value,
+          signup_email: document.getElementById("signup_email").value,
+          username: document.getElementById("username").value,
+          password: document.getElementById("password").value,
+          user_role: document.getElementById("user_role").value
+        };
 
-    if (!fullName || !email || !password || !role) {
-      frappe.msgprint("Please fill in all fields.");
-      return;
-    }
-
-    try {
-      // Step 1: Sign up
-      const signup = await fetch("/api/method/frappe.auth.sign_up", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Frappe-CSRF-Token": frappe.csrf_token
-        },
-        body: JSON.stringify({
-          email: email,
-          full_name: fullName,
-          redirect_to: "/"
-        })
+        frappe.call({
+          type: "POST",
+          method: "lms.lms.doctype.invite_request.invite_request.update_invite",
+          args: { data },
+          callback: (data) => {
+            if (data.message == "OK") {
+              frappe.msgprint("Account created successfully!");
+              setTimeout(() => {
+                window.location.href = "/login";
+              }, 2000);
+            }
+          }
+        });
       });
-
-      const signupRes = await signup.json();
-      if (!signup.ok || signupRes.exc) throw new Error(signupRes.message || "Signup failed");
-
-      // Step 2: Log in
-      const login = await fetch("/api/method/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Frappe-CSRF-Token": frappe.csrf_token
-        },
-        body: JSON.stringify({
-          usr: email,
-          pwd: password
-        })
-      });
-
-      const loginRes = await login.json();
-      if (!login.ok || loginRes.exc) throw new Error(loginRes.message || "Login failed");
-
-      // Step 3: Redirect by role
-      const dashboards = {
-        Student: "/student-dashboard",
-        Teacher: "/teacher-dashboard",
-        ROSI: "/rosi-dashboard",
-        ANYA: "/anya-dashboard"
-      };
-      window.location.href = dashboards[role] || "/";
-    } catch (err) {
-      frappe.msgprint("⚠️ " + err.message);
-    }
-  });
-</script>
-{% endblock %}
+    });
+  </script>
+</body>
+</html>

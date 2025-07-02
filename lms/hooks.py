@@ -257,13 +257,6 @@ add_to_apps_screen = [
 # Allow guest access to signup
 allow_guest = ["frappe.core.doctype.user.user.sign_up"]
 
-# Auto-assign role after user creation
-doc_events = {
-    "User": {
-        "after_insert": "lms.api.assign_user_role"
-    }
-}
-
 override_whitelisted_methods = {
     "frappe.www.login.login": "lms.www.login.custom_login"
 }

@@ -81,9 +81,30 @@ def update_machine(status):
 from frappe import _
 
 
+# @frappe.whitelist()
+# def assign_user_role(email, role):
+#     user = frappe.get_doc("User", email)
+#     if not any(r.role == role for r in user.roles):
+#         user.append("roles", {"role": role})
+#         user.save()
+
 @frappe.whitelist()
-def assign_user_role(email, role):
-    user = frappe.get_doc("User", email)
+def assign_user_role(user_or_email, role=None):
+    valid_roles = ["Student", "Teacher", "Website User"]
+
+    if isinstance(user_or_email, frappe.model.document.Document):
+        user = user_or_email
+    else:
+        user = frappe.get_doc("User", user_or_email)
+
+    role = role or "Student"  # fallback
+
+    if role not in valid_roles:
+        frappe.throw(_("Invalid role selected. Please contact support."))
+
     if not any(r.role == role for r in user.roles):
         user.append("roles", {"role": role})
         user.save()
+
+
+

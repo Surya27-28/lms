@@ -7,6 +7,8 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils.password import get_decrypted_password
+from lms.api import assign_user_role
+
 
 
 class InviteRequest(Document):
@@ -72,25 +74,51 @@ def create_invite_request(invite_email):
 	).save(ignore_permissions=True)
 	return "OK"
 
-
 @frappe.whitelist(allow_guest=True)
 def update_invite(data):
-	data = frappe._dict(json.loads(data)) if type(data) == str else frappe._dict(data)
+	data = frappe._dict(json.loads(data)) if isinstance(data, str) else frappe._dict(data)
 
-	try:
-		doc = frappe.get_doc("Invite Request", data.invite_code)
-	except frappe.DoesNotExistError:
-		frappe.throw(_("Invalid Invite Code."))
+	if frappe.db.exists("User", data.signup_email):
+		frappe.throw(_("A user with this email already exists."))
 
-	doc.signup_email = data.signup_email
-	doc.username = data.username
-	doc.full_name = data.full_name
-	doc.invite_code = data.invite_code
-	doc.save(ignore_permissions=True)
+	# ✅ Extract role (default to "Website User")
+	user_role = data.get("user_role") or "Website User"
 
-	user = doc.create_user(data.password)
-	if user:
-		doc.status = "Registered"
-		doc.save(ignore_permissions=True)
+	# 🚪 Invite-based flow
+	if data.get("invite_code"):
+		try:
+			doc = frappe.get_doc("Invite Request", data.invite_code)
 
-	return "OK"
+			doc.signup_email = data.signup_email
+			doc.username = data.username
+			doc.full_name = data.full_name
+			doc.invite_code = data.invite_code
+			doc.save(ignore_permissions=True)
+
+			user = doc.create_user(data.password)
+
+			if user:
+				assign_user_role(user, user_role)
+				doc.status = "Registered"
+				doc.save(ignore_permissions=True)
+
+			return "OK"
+		except frappe.DoesNotExistError:
+			frappe.throw(_("Invalid Invite Code."))
+
+	# 🌐 Open signup flow (no invite code)
+	else:
+		full_name_split = data.full_name.split(" ")
+		user = frappe.get_doc({
+			"doctype": "User",
+			"email": data.signup_email,
+			"first_name": full_name_split[0],
+			"last_name": full_name_split[1] if len(full_name_split) > 1 else "",
+			"username": data.username,
+			"user_type": "Website User",
+			"new_password": data.password,
+			"send_welcome_email": 1,
+		})
+		user.insert(ignore_permissions=True)
+		assign_user_role(user, user_role)
+		return "OK"
